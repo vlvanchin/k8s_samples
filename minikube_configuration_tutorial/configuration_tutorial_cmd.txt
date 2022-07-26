@@ -1,0 +1,24 @@
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
+sleep 1; launch.sh
+mvn package -pl system
+cd sample-kubernetes-config/start/q
+cd sample-kubernetes-config/start/
+mvn package -pl system
+mvn package -pl inventory
+kubectl apply -f kubernetes.yaml
+kubectl wait --for=condition=ready pod -l app=inventory
+kubectl wait --for=condition=ready pod -l app=system
+curl -u bob:bobpwd http://$( minikube ip ):31000/system/properties
+curl http://$( minikube ip ):32000/inventory/systems/system-service
+curl -# -I -u bob:bobpwd -D - http://$( minikube ip ):31000/system/properties | grep -i ^X-App-Name:
+kubectl create configmap sys-app-name --from-literal name=my-system
+kubectl create secret generic sys-app-credentials --from-literal username=bob --from-literal password=bobpwd
+mvm package -pl system,inventory
+mvn package -pl system,inventory
+kubectl replace --force -f kubernetes.yaml
+kubectl get --watch pods
+curl -# -I -u bob:bobpwd -D - http://$( minikube ip ):31000/system/properties | grep -i ^X-App-Name:
+curl http://$( minikube ip ):32000/inventory/systems/system-service
+history
+clear
+history

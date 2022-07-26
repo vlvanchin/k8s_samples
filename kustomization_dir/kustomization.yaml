@@ -1,0 +1,46 @@
+namespace: my-namespace
+namePrefix: dev-
+nameSuffix: "-001"
+commonLabels:
+  app: bingo
+commonAnnotations:
+  oncallPager: 111-111-1111
+resources:
+- deployment.yaml
+- deployment-nginx.yaml
+- service-nginx.yaml
+patchesStrategicMerge:
+- increase_replicas.yaml
+- set_memory.yaml
+patchesJson6902:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: nginx-deployment
+    path: patch.yaml
+configMapGenerator:
+- name: example-configmap-1
+  files:
+  - application.properties
+  envs:
+  - .env
+  literals:
+  - FOO1=Bar
+- name: example-configmap-2
+  literals:
+  - FOO=Bar
+secretGenerator:
+- name: example-secret-1
+  files:
+  - password.txt
+- name: example-secret-2
+  literals:
+  - username=admin
+  - password=secret
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    type: generated
+  annotations:
+    note: generated
